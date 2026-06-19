@@ -1,41 +1,75 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const Index = () => {
+const Header = () => {
+  const { currentUser, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
   React.useEffect(() => {
-    AOS.init({ offset: 0 });
-  }, []);
+    setMenuOpen(false);
+  }, [location.pathname]);
 
-  const hamburg = () => {
-    console.log("Hamburger menu clicked");
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
     <nav>
       <div className="nav-container">
-        <div className="logo" data-aos="zoom-in" data-aos-duration="1500">
-          Life <span>Connect</span>
+        <div className="logo">
+          <Link to="/">
+            Life <span>Connect</span>
+          </Link>
         </div>
+
         <div className="links">
-          <div className="link" data-aos="fade-up" data-aos-duration="1500" data-aos-delay="100">
-            <Link to="/">Home</Link>
+          <div className="link">
+            <NavLink to="/">Home</NavLink>
           </div>
-          <div className="link" data-aos="fade-up" data-aos-duration="1500" data-aos-delay="200">
-            <Link to="/about">About</Link>
+          <div className="link">
+            <NavLink to="/about">About</NavLink>
           </div>
-          <div className="link" data-aos="fade-up" data-aos-duration="1500" data-aos-delay="300">
-            <Link to="/donors">Donors</Link>
+          <div className="link">
+            <NavLink to="/donors">Donors</NavLink>
           </div>
-          <div className="link" data-aos="fade-up" data-aos-duration="1500" data-aos-delay="500">
-            <Link to="/patients">Patient</Link>
+          <div className="link">
+            <NavLink to="/patients">Patient</NavLink>
           </div>
+          {currentUser ? (
+            <>
+              <div className="signed-user">{currentUser.name}</div>
+              <button className="nav-logout" type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : null}
         </div>
-        <i className="fa-solid fa-bars hamburg" onClick={hamburg}></i>
+
+        <i
+          className={`fa-solid ${menuOpen ? "fa-xmark cancel" : "fa-bars hamburg"}`}
+          onClick={() => setMenuOpen((current) => !current)}
+        ></i>
+      </div>
+
+      <div className="dropdown" style={{ transform: menuOpen ? "translateY(0px)" : "translateY(-500px)" }}>
+        <div className="links">
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/donors">Donors</NavLink>
+          <NavLink to="/patients">Patient</NavLink>
+          {currentUser ? (
+            <button className="mobile-logout" type="button" onClick={handleLogout}>
+              Logout
+            </button>
+          ) : null}
+        </div>
       </div>
     </nav>
   );
 };
 
-export default Index;
+export default Header;
